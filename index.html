@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة عرض المشروع</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .lang-select {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-content h3 {
+            margin-top: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2>شعار المشروع</h2>
+        <select class="lang-select" id="langSwitcher" onchange="changeLanguage(this.value)">
+            <option value="ar">العربية (🇮🇶)</option>
+            <option value="en">English (🇺🇸)</option>
+            <option value="fr">Français (🇫🇷)</option>
+        </select>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1 id="heroTitle">مرحباً بك في منصة مشروعنا الذكي</h1>
+            <p id="heroDesc">نحن نقدم أفضل الحلول التقنية المبتكرة لتسهيل إدارة أعمالك بكل سهولة وفاعلية.</p>
+        </section>
+
+        <section class="gallery">
+            <div class="card">
+                <img src="https://via.placeholder.com/400x200" alt="صورة 1">
+                <div class="card-content">
+                    <h3 id="card1Title">لوحة التحكم السريعة</h3>
+                    <p id="card1Desc">واجهة بسيطة تتيح لك متابعة جميع البيانات والإحصائيات في مكان واحد.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="https://via.placeholder.com/400x200" alt="صورة 2">
+                <div class="card-content">
+                    <h3 id="card2Title">تحليلات دقيقة</h3>
+                    <p id="card2Desc">تقارير مخصصة ومدعومة بالذكاء الاصطناعي لفهم نمو مشروعك بشكل أفضل.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="https://via.placeholder.com/400x200" alt="صورة 3">
+                <div class="card-content">
+                    <h3 id="card3Title">دعم متواصل</h3>
+                    <p id="card3Desc">فريقنا متواجد على مدار الساعة لتقديم الدعم والحلول المباشرة لك.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p id="footerText">جميع الحقوق محفوظة © 2026</p>
+    </footer>
+
+    <script>
+        const translations = {
+            ar: {
+                dir: "rtl",
+                heroTitle: "مرحباً بك في منصة مشروعنا الذكي",
+                heroDesc: "نحن نقدم أفضل الحلول التقنية المبتكرة لتسهيل إدارة أعمالك بكل سهولة وفاعلية.",
+                card1Title: "لوحة التحكم السريعة",
+                card1Desc: "واجهة بسيطة تتيح لك متابعة جميع البيانات والإحصائيات في مكان واحد.",
+                card2Title: "تحليلات دقيقة",
+                card2Desc: "تقارير مخصصة ومدعومة بالذكاء الاصطناعي لفهم نمو مشروعك بشكل أفضل.",
+                card3Title: "دعم متواصل",
+                card3Desc: "فريقنا متواجد على مدار الساعة لتقديم الدعم والحلول المباشرة لك.",
+                footerText: "جميع الحقوق محفوظة © 2026"
+            },
+            en: {
+                dir: "ltr",
+                heroTitle: "Welcome to Our Smart Project",
+                heroDesc: "We provide innovative technical solutions to help manage your business effectively.",
+                card1Title: "Fast Dashboard",
+                card1Desc: "A simple interface that allows you to track all stats and data in one place.",
+                card2Title: "Accurate Analytics",
+                card2Desc: "Tailored reports powered by AI to help you better understand your growth.",
+                card3Title: "24/7 Support",
+                card3Desc: "Our team is available round the clock to provide direct support and solutions.",
+                footerText: "All rights reserved © 2026"
+            },
+            fr: {
+                dir: "ltr",
+                heroTitle: "Bienvenue sur Notre Projet Intelligent",
+                heroDesc: "Nous fournissons des solutions techniques innovantes pour gérer votre entreprise efficacement.",
+                card1Title: "Tableau de Bord Rapide",
+                card1Desc: "Une interface simple qui vous permet de suivre toutes les données au même endroit.",
+                card2Title: "Analyses Précises",
+                card2Desc: "Rapports personnalisés propulsés par l'IA pour mieux comprendre votre croissance.",
+                card3Title: "Support Continu",
+                card3Desc: "Notre équipe est disponible 24/7 pour vous fournir un soutien direct.",
+                footerText: "Tous droits réservés © 2026"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const data = translations[lang];
+            
+            // تغيير اتجاه النص
+            document.documentElement.dir = data.dir;
+            document.documentElement.lang = lang;
+
+            // تحديث النصوص
+            document.getElementById('heroTitle').innerText = data.heroTitle;
+            document.getElementById('heroDesc').innerText = data.heroDesc;
+            document.getElementById('card1Title').innerText = data.card1Title;
+            document.getElementById('card1Desc').innerText = data.card1Desc;
+            document.getElementById('card2Title').innerText = data.card2Title;
+            document.getElementById('card2Desc').innerText = data.card2Desc;
+            document.getElementById('card3Title').innerText = data.card3Title;
+            document.getElementById('card3Desc').innerText = data.card3Desc;
+            document.getElementById('footerText').innerText = data.footerText;
+        }
+    </script>
+</body>
+</html>
