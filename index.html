@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التداول - اختيار اللغة</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Tahoma, sans-serif;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .splash-card {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #f8fafc;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: #334155;
+            color: white;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+        .progress-container {
+            width: 100%;
+            background: #334155;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.03s linear;
+        }
+        .progress-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .enter-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .enter-btn:hover {
+            background: #2563eb;
+        }
+        .enter-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-card">
+        <h2>اختر لغة المنصة</h2>
+        <select id="langSelect">
+            <option value="ar">العربية (Arabic)</option>
+            <option value="en">الإنجليزية (English)</option>
+            <option value="tr">التركية (Türkçe)</option>
+            <option value="fa">الفارسية (فارسی)</option>
+            <option value="fr">الفرنسية (Français)</option>
+            <option value="de">الألمانية (Deutsch)</option>
+        </select>
+
+        <div class="progress-text" id="progressText">جاري تجهيز الترجمة: <span id="percent">0</span>%</div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button class="enter-btn" id="enterBtn" onclick="startLoading()">دخول</button>
+    </div>
+
+    <script>
+        const targetWebsite = "https://mhamednajem.github.io/Trada/";
+
+        function startLoading() {
+            const lang = document.getElementById('langSelect').value;
+            const btn = document.getElementById('enterBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const percentSpan = document.getElementById('percent');
+
+            btn.disabled = true;
+            document.getElementById('langSelect').disabled = true;
+            progressContainer.style.display = 'block';
+            progressText.style.display = 'block';
+
+            let currentPercent = 0;
+            
+            let interval = setInterval(function() {
+                currentPercent += 4;
+                if (currentPercent > 100) {
+                    currentPercent = 100;
+                }
+                
+                progressBar.style.width = currentPercent + '%';
+                percentSpan.textContent = currentPercent;
+
+                if (currentPercent === 100) {
+                    clearInterval(interval);
+                    
+                    setTimeout(function() {
+                        const googleTranslateUrl = `https://translate.google.com/translate?u=${encodeURIComponent(targetWebsite)}&hl=ar&sl=auto&tl=${lang}`;
+                        window.location.href = googleTranslateUrl;
+                    }, 400);
+                }
+            }, 30);
+        }
+    </script>
+</body>
+</html>
