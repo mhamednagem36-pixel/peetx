@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق بوت PeetX الذكي</title>
+    <!-- استدعاء مكتبة إيثريوم للعمل داخل المتصفح والتطبيق -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 30px 20px; margin: 0; }
+        .card { background: #1e293b; padding: 25px; border-radius: 15px; max-width: 450px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.6); text-align: right; }
+        h2 { color: #38bdf8; text-align: center; margin-bottom: 5px; }
+        p { color: #94a3b8; font-size: 13px; text-align: center; margin-bottom: 20px; }
+        label { font-size: 13px; color: #cbd5e1; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; box-sizing: border-box; margin-bottom: 15px; font-size: 13px; direction: ltr; }
+        button { background: #22c55e; color: white; border: none; padding: 14px 25px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #16a34a; }
+        button.stop { background: #ef4444; }
+        button.stop:hover { background: #dc2626; }
+        h3 { font-size: 14px; margin-top: 20px; color: #f8fafc; }
+        #status { margin-top: 10px; font-size: 12px; color: #cbd5e1; word-break: break-all; background: #0f172a; padding: 12px; border-radius: 8px; text-align: left; direction: ltr; height: 180px; overflow-y: auto; border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>بوت PeetX الآلي</h2>
+        <p>يعمل تلقائياً بالتوقيع الداخلي عند تحقق شرط Chainlink</p>
+        
+        <label for="privateKeyInput">المفتاح الخاص للمحفظة (Private Key):</label>
+        <input type="password" id="privateKeyInput" placeholder="أدخل مفتاحك الخاص هنا (0x...)">
+
+        <button id="actionBtn" onclick="toggleBot()">تشغيل البوت</button>
+        
+        <h3>سجل العمليات المباشر:</h3>
+        <div id="status">البوت متوقف حالياً. أخلِ مفتاحك واضغط تشغيل...</div>
+    </div>
+
+    <script>
+        const CONTRACT_ADDRESS = "0x9B3F6B83B07E5B313D960D47938800f0BCce206D";
+        const CONTRACT_ABI = [
+            "constructor()",
+            "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
+            "event PoolEvent(uint256 indexed id, string itemType, address indexed user, uint256 amount, bool success)",
+            "function Chainlink() external view returns (bool)",
+            "function NonfungiblePositionManager() external view returns (address)",
+            "function USDT() external view returns (address)",
+            "function View_plans(address user, uint256 invCursor, uint256 invLimit) external view returns (((uint256[5],uint256[5],uint256,address,uint256,uint256,uint256) userData, (uint256 id,address investor,uint256 amount,uint256 planId,uint256 profitPercent,uint256 startTime,uint256 duration,uint256 totalGenPaid,bool processed,bool earlyWithdrawn)[] activeInvestments))",
+            "function claimEarnings() external",
+            "function claimLiquidity(uint256 invId) external",
+            "function invest(uint256 amount, uint256 planId, address referrer) external",
+            "function owner() external view returns (address)",
+            "function pool() external",
+            "function settleInvestment(uint256 invId) external"
+        ];
+
+        let botInterval = null;
+        let isRunning = false;
+        let wallet, contract, provider;
+
+        function logMessage(msg) {
+            const statusDiv = document.getElementById("status");
+            const timeStr = new Date().toLocaleTimeString();
+            statusDiv.innerHTML += `[${timeStr}] ${msg}<br>`;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+
+        async function toggleBot() {
+            if (!isRunning) {
+                const pk = document.getElementById("privateKeyInput").value.trim();
+                if (!pk) {
+                    alert("يرجى إدخال المفتاح الخاص (Private Key) للمحفظة أولاً!");
+                    return;
+                }
+                startBot(pk);
+            } else {
+                stopBot();
+            }
+        }
+
+        function startBot(pk) {
+            try {
+                // الاتصال بشبكة بينانس مباشرة
+                provider = new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/");
+                wallet = new ethers.Wallet(pk, provider);
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet);
+
+                isRunning = true;
+                const btn = document.getElementById("actionBtn");
+                btn.innerText = "إيقاف البوت";
+                btn.className = "stop";
+                document.getElementById("privateKeyInput").disabled = true;
+
+                logMessage("تم تهيئة المحفظة بنجاح! العنوان: " + wallet.address.substring(0,6) + "..." + wallet.address.substring(38));
+                logMessage("تم بدء المراقبة الآلية لدالة Chainlink كل 5 ثوانٍ...");
+
+                // التشغيل الفوري ثم التكرار كل 5 ثوانٍ
+                checkAndExecute();
+                botInterval = setInterval(checkAndExecute, 5000);
+
+            } catch (error) {
+                logMessage("خطأ في المفتاح أو الاتصال: " + (error.reason || error.message));
+            }
+        }
+
+        function stopBot() {
+            if (botInterval) {
+                clearInterval(botInterval);
+                botInterval = null;
+            }
+            isRunning = false;
+            const btn = document.getElementById("actionBtn");
+            btn.innerText = "تشغيل البوت";
+            btn.className = "";
+            document.getElementById("privateKeyInput").disabled = false;
+            logMessage("تم إيقاف البوت يدوياً.");
+        }
+
+        async function checkAndExecute() {
+            if (!isRunning) return;
+
+            try {
+                // فحص دالة Chainlink (قراءة فقط بدون رسوم)
+                const chainlinkStatus = await contract.Chainlink();
+
+                if (chainlinkStatus === true) {
+                    logMessage("الحالة true! جاري استدعاء وتوقيع دالة pool تلقائياً...");
+                    
+                    // التوقيع وإرسال المعاملة ودفع رسوم الـ BNB تلقائياً
+                    const tx = await contract.pool();
+                    logMessage("تم إرسال المعاملة بنجاح. الهاش: " + tx.hash);
+
+                    const receipt = await tx.wait();
+                    logMessage("تم تأكيد المعاملة بنجاح في البلوك رقم: " + receipt.blockNumber);
+
+                } else {
+                    logMessage("الحالة false، البوت ينتظر الشرط...");
+                }
+
+            } catch (error) {
+                logMessage("تنبيه/خطأ بالشبكة أو الرصيد: " + (error.reason || error.message));
+            }
+        }
+    </script>
+</body>
+</html>
